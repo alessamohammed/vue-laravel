@@ -1,5 +1,5 @@
 <script>
-import VueSelection from './selection.vue'
+import VueSelection from './Pages/Selection.vue'
 export default {
   components: {
     VueSelection
