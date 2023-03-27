@@ -28,8 +28,10 @@
 </template>
 
 <script>
+import axios from 'axios';
 let selection;
 let selectionRange;
+let highlights = [];
 export default {
 	name: 'VueSelection',
 	data () {
@@ -48,6 +50,7 @@ export default {
             }
         },
 	mounted () {
+        getAllHighlights();
 		window.addEventListener('mouseup', this.onMouseup)
 	},
 
@@ -59,7 +62,8 @@ export default {
 		onMouseup () {
 			selection = window.getSelection()
 			selectionRange = selection.getRangeAt(0)
-            console.log(selection)
+            this.x = selectionRange.startOffset;
+            this.y = selectionRange.endOffset;
 			// startNode is the element that the selection starts in
             console.log(selectionRange);
 			const startNode = upTo(selectionRange.startContainer,"div")
@@ -126,7 +130,9 @@ export default {
 
             selection = window.getSelection()
 			selectionRange = selection.getRangeAt(0)
-            TestTextHighlighting("Vue");
+            addHighlight(1, selectionRange.startOffset, selectionRange.endOffset);
+            TestTextHighlighting(selectionRange.startOffset, selectionRange.endOffset);
+        
 
         }
 
@@ -134,7 +140,6 @@ export default {
 }
 function upTo(el, tagName) {
   tagName = tagName.toLowerCase();
-
   while (el && el.parentNode) {
     el = el.parentNode;
     if (el.tagName && el.tagName.toLowerCase() == tagName) {
@@ -149,9 +154,28 @@ function upTo(el, tagName) {
   return null;
 }
 
+function addHighlight(user_id, x, y) {
+    let highlight = {"user_id":user_id,"start_offset":x,"end_offset":y};
+    axios
+                    .post('http://localhost:8000/highlight/add', highlight)
+                    .then(response => (
+                         console.log(response.data)
+                    ))
+                    .catch(error => console.log(error))
+}
+
+function getAllHighlights() {
+        axios
+                .get('http://localhost:8000/highlights')
+                .then(response => {
+                    highlights = response.data;
+                    HighlightAll(highlights);
+                    console.log(response.data);
+                });
+}
 var InstantSearch = {
 
-"highlight": function (container, highlightText)
+"highlight": function (container, start_offset, end_offset)
 {
     var internalHighlighter = function (options)
     {
@@ -160,7 +184,6 @@ var InstantSearch = {
             container: "container",
             tokens: "tokens",
             all: "all",
-            token: "token",
             className: "className",
             sensitiveSearch: "sensitiveSearch"
         },
@@ -169,13 +192,13 @@ var InstantSearch = {
         allSensitiveSearch = options[id.all][id.sensitiveSearch];
 
 
-        function checkAndReplace(node, tokenArr, classNameAll, sensitiveSearchAll)
+        function checkAndReplace(node, tokenArr, classNameAll)
         {
             console.log(node);
             console.log("in check and replace")
             var nodeVal = node.nodeValue, parentNode = node.parentNode,
-                i, j, curToken, myToken, myClassName, mySensitiveSearch,
-                finalClassName, finalSensitiveSearch,
+                i, j, curToken, myClassName,
+                finalClassName,
                 foundIndex, begin, matched, end,
                 textNode, mark, isFirst;
 
@@ -183,51 +206,43 @@ var InstantSearch = {
             for (i = 0, j = tokenArr.length; i < j; i++)
             {
                 curToken = tokenArr[i];
-                myToken = curToken[id.token];
                 myClassName = curToken[id.className];
-                mySensitiveSearch = curToken[id.sensitiveSearch];
 
                 finalClassName = (classNameAll ? myClassName + " " + classNameAll : myClassName);
 
-                finalSensitiveSearch = (typeof sensitiveSearchAll !== "undefined" ? sensitiveSearchAll : mySensitiveSearch);
 
-                isFirst = true;
+                // isFirst = true;
        
-                    // if (finalSensitiveSearch)
-                    //     foundIndex = nodeVal.indexOf(myToken);
-                    // else
-                    //     foundIndex = nodeVal.toLowerCase().indexOf(myToken.toLowerCase());
-                    console.log(parentNode,selectionRange.startContainer.parentElement);
-                    
-                    if (parentNode == selectionRange.startContainer.parentElement)
-                    {
-                        foundIndex = selectionRange.startOffset;
-                        console.log(foundIndex);
-                    }
-                    else
-                    foundIndex = -1;
+                                       
+                //     if (parentNode == selectionRange.startContainer.parentElement)
+                //     {
+                //         foundIndex = start_offset;
+                //         console.log(foundIndex);
+                //     }
+                //     else
+                //     foundIndex = -1;
 
-                    if (foundIndex < 0)
-                    {
-                        if (isFirst)
-                            break;
+                //     if (foundIndex < 0)
+                //     {
+                //         if (isFirst)
+                //             break;
 
-                        if (nodeVal)
-                        {
-                            textNode = document.createTextNode(nodeVal);
-                            console.log("textnode nodeval", textNode)
-                            parentNode.insertBefore(textNode, node);
-                        } // End if (nodeVal)
+                //         if (nodeVal)
+                //         {
+                //             textNode = document.createTextNode(nodeVal);
+                //             console.log("textnode nodeval", textNode)
+                //             parentNode.insertBefore(textNode, node);
+                //         } // End if (nodeVal)
 
-                        parentNode.removeChild(node);
-                        break;
-                    } // End if (foundIndex < 0)
+                //         parentNode.removeChild(node);
+                //         break;
+                //     } // End if (foundIndex < 0)
 
-                    isFirst = false;
+                //     isFirst = false;
 
 
                     begin = nodeVal.substring(0, foundIndex);
-                    matched = nodeVal.substr(foundIndex, (selectionRange.endOffset - selectionRange.startOffset) );
+                    matched = nodeVal.substr(foundIndex, (end_offset - start_offset) );
 
                     if (begin)
                     {
@@ -239,7 +254,7 @@ var InstantSearch = {
                     mark.className += finalClassName;
                     console.log(matched);
                     mark.appendChild(document.createTextNode(matched));
-                    nodeVal = nodeVal.substring(foundIndex + (selectionRange.endOffset - selectionRange.startOffset));
+                    nodeVal = nodeVal.substring(foundIndex + (end_offset - start_offset));
                     console.log(nodeVal);
                     node.textContent = nodeVal;
                     console.log(node);
@@ -289,8 +304,7 @@ var InstantSearch = {
                 }
             , tokens: [
                 {
-                    token: highlightText
-                    , className: "highlight"
+                    className: "highlight"
                     , sensitiveSearch: false
                 }
             ]
@@ -301,11 +315,20 @@ var InstantSearch = {
 
 };
 
-function TestTextHighlighting(highlightText)
+function TestTextHighlighting(start_offset, end_offset)
 {
     console.log("in testtexthighlighting")
     var container = document.getElementById("wholeText");
-    InstantSearch.highlight(container, highlightText);
+    InstantSearch.highlight(container, start_offset, end_offset);
+}
+
+function HighlightAll(Highlights)
+{
+    console.log("in testtexthighlighting")
+    var container = document.getElementById("wholeText");
+    Highlights.forEach(highlight => {
+        InstantSearch.highlight(container, highlight.start_offset, highlight.end_offset);
+    });
 }
 
 

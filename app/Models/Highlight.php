@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Highlight extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'user_id','start_offset', 'end_offset'
+    ];
 }
