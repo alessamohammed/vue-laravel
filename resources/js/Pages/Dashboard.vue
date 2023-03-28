@@ -17,7 +17,9 @@ import VueSelection from './Selection.vue'
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <VueSelection @share="onShare" style="margin-top: 20%;">
-                        <div id="wholeText"><p>Vue 3 , Laravel 10 with </p></div>
+                        <div id="wholeText">
+                            <p><a href="#">قانونية </a>هي منصة تقدم خدمات <a href="#"> مساندة للقانونيين </a></p>
+                        </div>
                     </VueSelection>
                 </div>
             </div>
