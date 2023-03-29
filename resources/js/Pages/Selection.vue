@@ -243,12 +243,16 @@ var InstantSearch = {
                     
                     if (selectionRange.startContainer != selectionRange.endContainer)
                     {
-                        if (node != selectionRange.startContainer && node != selectionRange.endContainer && !isFirst){
+                        console.log("is first", isFirst);
+                        console.log("is last", isLast);
+                        if (node != selectionRange.startContainer && node != selectionRange.endContainer && !isFirst && isLast){
                             console.log(node);
                             matched = nodeVal.substr(0, node.length);
                             console.log("node length", node.length);
                             mark = document.createElement("mark");
                             mark.className += finalClassName;
+                            EndOffset+= node.length;
+                            console.log("endoffset",EndOffset);
                             mark.appendChild(document.createTextNode(matched));
                             node.textContent = "";
                             console.log(node);
@@ -258,9 +262,12 @@ var InstantSearch = {
                         {
                             isFirst = false;
                             begin = nodeVal.substring(0, start_offset);
-                            matched = nodeVal.substr(start_offset, selectionRange.startContainer.length);
+                            matched = nodeVal.substr(start_offset, node.length);
                             console.log("matched", matched)
                             node.textContent = "";
+                            EndOffset+=node.length;
+                            console.log(node.length);
+                            console.log("endoffset", EndOffset);
                             if (begin)
                             {
                                 textNode = document.createTextNode(begin);
@@ -278,11 +285,14 @@ var InstantSearch = {
                         
                         else if (node == selectionRange.endContainer)
                         {
+                            isLast = false;
                             matched = nodeVal.substr(selectionRange.endContainer.start_offset, end_offset);
                             console.log("end matched", matched);
                             mark = document.createElement("mark");
                             mark.className += finalClassName;
                             console.log(matched);
+                            EndOffset+=end_offset;
+                            console.log("End offset", EndOffset);
                             mark.appendChild(document.createTextNode(matched));
                             nodeVal = nodeVal.substring(start_offset + (end_offset - start_offset));
                             console.log("node val",nodeVal);
@@ -322,9 +332,7 @@ var InstantSearch = {
             } // Next i 
         }; // End Function checkAndReplace 
 
-        let StartOffset;
-        let EndOffset;
-        let isFirst;
+       
 
         function iterator(p)
         {
@@ -332,11 +340,10 @@ var InstantSearch = {
     
             var children = Array.prototype.slice.call(p.childNodes), i, cur;
             console.log(children);
-            StartOffset = 0;
-            EndOffset = 0;
+
             if (children.length)
             {
-                isFirst = true;
+                
                 for (i = 0; i < children.length; i++)
                 {
                     cur = children[i];
@@ -377,9 +384,16 @@ var InstantSearch = {
 } // End Function highlight
 
 };
-
+let StartOffset;
+        let EndOffset;
+        let isFirst;
+        let isLast;
 function TestTextHighlighting(start_offset, end_offset)
 {
+    StartOffset = 0;
+    EndOffset = 0;
+    isFirst = true;
+    isLast = true;
     console.log("in testtexthighlighting")
     var container = document.getElementById("wholeText");
     InstantSearch.highlight(container, start_offset, end_offset);

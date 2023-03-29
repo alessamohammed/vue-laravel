@@ -16,9 +16,12 @@ import VueSelection from './Selection.vue'
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <VueSelection @share="onShare" style="margin-top: 20%;">
+                    <VueSelection @share="onShare">
                         <div id="wholeText">
-                            <p><a href="#">قانونية </a>هي منصة تقدم خدمات <a href="#"> مساندة للقانونيين </a></p>
+                            <p><a href="#">قانونية </a>هي منصة تقدم خدمات <a href="#"> مساندة للقانونيين </a>
+                              وذلك بتوفير قاعدة بيانات نوعية تشمية اكثر من ثلاثين ألف &nbsp; مستند خاصاّ 
+                               ووثيقة <a>قانونية </a>تتضمن قاعدة البيانات أحكام وقرارات وانظمة ولوائح متعلقة بالنظام السعودي &nbsp;<br>
+                            </p>
                         </div>
                     </VueSelection>
                 </div>
@@ -26,3 +29,5 @@ import VueSelection from './Selection.vue'
         </div>
     </AuthenticatedLayout>
 </template>
+
+
