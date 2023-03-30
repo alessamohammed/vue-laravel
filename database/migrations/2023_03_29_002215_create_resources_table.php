@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('tagsresourcesmap', function (Blueprint $table) {
+        Schema::create('resource_tag', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(\App\Models\User::class, 'user_id');  
             $table->foreignIdFor(\App\Models\Tag::class, 'tag_id');  

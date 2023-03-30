@@ -10,7 +10,7 @@ import axios from 'axios';
             <div class="col-md-6">
                 <form @submit.prevent="addTag">
                     <div class="form-group">
-                        <label>Title</label>
+                        <label>Name</label>
                         <input type="text" class="form-control" v-model="tag.name">
                     </div>
                     <button type="submit" class="btn btn-primary">Add Tag</button>

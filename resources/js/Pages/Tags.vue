@@ -37,8 +37,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
                 <td>{{ tag.updated_at }}</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <router-link :to="{name: 'edit', params: { id: tag.id }}" class="btn btn-primary">Edit
-                        </router-link>
                         <button class="btn btn-danger" @click="deletetag(tag.id)">Delete</button>
                     </div>
                 </td>
@@ -65,7 +63,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
         },
         methods: {
             deletetag(id) {
-                console.log(id);
                 axios
                     .delete(`http://localhost:8000/tag/delete/${id}`)
                     .then(response => {

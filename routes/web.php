@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\API\HighlightController;
 use App\Http\Controllers\API\TagController;
+use App\Http\Controllers\API\ResourceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -35,6 +36,11 @@ Route::get('/alltags', function () {
     return Inertia::render('Tags');
 })->middleware(['auth', 'verified'])->name('alltags');
 
+// allresources
+Route::get('/allresources', function () {
+    return Inertia::render('Resources');
+})->middleware(['auth', 'verified'])->name('allresources');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -45,6 +51,19 @@ Route::group(['prefix' => 'highlight'],function () {
 });
 Route::get('/highlights', [HighlightController::class, 'index']);
 
+// Resources
+Route::get('/resources', [ResourceController::class, 'index']);
+// Resources group
+Route::group(['prefix' => 'resource'],function () {
+    Route::post('/add', [ResourceController::class,'add'])->name('resource.add');
+    Route::post('/maptag', [ResourceController::class,'mapTagToResource'])->name('resource.maptag');
+    Route::post('/unmaptag', [ResourceController::class,'unmapTagFromResource'])->name('resource.unmaptag');
+    Route::get('/getmappedtags/{id}', [ResourceController::class,'getMappedTags'])->name('resource.getmappedtags');
+});
+// map tag page
+Route::get('/maptag', function () {
+    return Inertia::render('MapTag');
+})->middleware(['auth', 'verified'])->name('maptag');
 // tags
 // add tag page
 Route::get('/addtag', function () {
@@ -57,5 +76,6 @@ Route::group(['prefix' => 'tag'],function () {
     Route::post('/update/{id}', [TagController::class,'update'])->name('tag.update');
     Route::delete('/delete/{id}', [TagController::class,'delete'])->name('tag.delete');
 });
+
 
 require __DIR__.'/auth.php';

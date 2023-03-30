@@ -44,8 +44,6 @@ export default {
 	},
 	computed: {
         highlightableEl () {
-            console.log(this.$slots);
-            console.log(this.$slots.default[0]);
         return this.$refs.mySlot;
             }
         },
@@ -64,27 +62,6 @@ export default {
 			selectionRange = selection.getRangeAt(0)
             this.x = selectionRange.startOffset;
             this.y = selectionRange.endOffset;
-			// startNode is the element that the selection starts in
-            console.log(selection);
-            console.log(selectionRange);
-			const startNode = upTo(selectionRange.startContainer,"div")
-			// endNode is the element that the selection ends in
-			const endNode = upTo(selectionRange.endContainer,"div")
-
-            
-			// if the selected text is not part of the highlightableEl (i.e. <p>)
-			// OR
-			// if startNode !== endNode (i.e. the user selected multiple paragraphs)
-			// Then
-			// Don't show the menu (this selection is invalid)
-            // ! startNode.isSameNode(this.highlightableEl) ||
-			if (!startNode.isSameNode(endNode)) {
-                console.log(!startNode.isSameNode(this.highlightableEl));
-                console.log(!startNode.isSameNode(endNode))
-                console.log("in the same node")
-				this.showMenu = false
-				return
-			}
 
 			// Get the x, y, and width of the selection
 			const { x, y, width } = selectionRange.getBoundingClientRect()
@@ -97,10 +74,6 @@ export default {
 				return
 			}
 
-			// Finally, if the selection is valid,
-			// set the position of the menu element,
-			// set selectedText to content of the selection
-			// then, show the menu
 			this.x = x + (width / 2)
 			this.y = y + window.scrollY - 10
 			this.selectedText = selection.toString()
@@ -110,25 +83,6 @@ export default {
 			this.$emit(action, this.selectedText)
 		},
         highlight() {
-            // var inputText = document.getElementById("wholeText");
-            // var innerHTML = inputText.innerHTML;
-            // let innerText = inputText.innerText
-            // let start;
-            // let end;
-            // if (start > end)
-            // {
-            //     start = selectionRange.endOffset;
-            //     end = selectionRange.startOffset;
-            // }
-            // else
-            // {
-            // start = selectionRange.startOffset;
-            // end = selectionRange.endOffset;
-            // }
-            // console.log(selectionRange.startContainer);
-            // innerHTML = innerText.substring(0,start) + "<mark>" + innerText.substring(start,end) + "</mark>" + innerText.substring(end,);
-            // inputText.innerHTML = innerHTML;
-
             selection = window.getSelection()
 			selectionRange = selection.getRangeAt(0)
             addHighlight(1, selectionRange.startOffset, selectionRange.endOffset);
@@ -171,7 +125,6 @@ function getAllHighlights() {
                 .then(response => {
                     highlights = response.data;
                     HighlightAll(highlights);
-                    console.log(response.data);
                 });
 }
 var InstantSearch = {
@@ -195,67 +148,28 @@ var InstantSearch = {
 
         function checkAndReplace(node, tokenArr, classNameAll)
         {
-            console.log(node);
-            console.log("in check and replace")
             var nodeVal = node.nodeValue, parentNode = node.parentNode,
                 i, j, curToken, myClassName,
                 finalClassName,
                 foundIndex, begin, matched, end,
                 textNode, mark;
 
-                console.log(tokenArr);
             for (i = 0, j = tokenArr.length; i < j; i++)
             {
                 curToken = tokenArr[i];
                 myClassName = curToken[id.className];
 
                 finalClassName = (classNameAll ? myClassName + " " + classNameAll : myClassName);
-
-
-                // isFirst = true;
-                
-                                       
-                //     if (parentNode == selectionRange.startContainer.parentElement)
-                //     {
-                //         foundIndex = start_offset;
-                //         console.log(foundIndex);
-                //     }
-                //     else
-                //     foundIndex = -1;
-
-                //     if (foundIndex < 0)
-                //     {
-                //         if (isFirst)
-                //             break;
-
-                //         if (nodeVal)
-                //         {
-                //             textNode = document.createTextNode(nodeVal);
-                //             console.log("textnode nodeval", textNode)
-                //             parentNode.insertBefore(textNode, node);
-                //         } // End if (nodeVal)
-
-                //         parentNode.removeChild(node);
-                //         break;
-                //     } // End if (foundIndex < 0)
-
-                //     isFirst = false;
                     
                     if (selectionRange.startContainer != selectionRange.endContainer)
                     {
-                        console.log("is first", isFirst);
-                        console.log("is last", isLast);
                         if (node != selectionRange.startContainer && node != selectionRange.endContainer && !isFirst && isLast){
-                            console.log(node);
                             matched = nodeVal.substr(0, node.length);
-                            console.log("node length", node.length);
                             mark = document.createElement("mark");
                             mark.className += finalClassName;
                             EndOffset+= node.length;
-                            console.log("endoffset",EndOffset);
                             mark.appendChild(document.createTextNode(matched));
                             node.textContent = "";
-                            console.log(node);
                             parentNode.insertBefore(mark, node);
                         }
                         else if (node == selectionRange.startContainer)
@@ -263,23 +177,17 @@ var InstantSearch = {
                             isFirst = false;
                             begin = nodeVal.substring(0, start_offset);
                             matched = nodeVal.substr(start_offset, node.length);
-                            console.log("matched", matched)
                             node.textContent = "";
                             EndOffset+=node.length;
-                            console.log(node.length);
-                            console.log("endoffset", EndOffset);
                             if (begin)
                             {
                                 textNode = document.createTextNode(begin);
-                                console.log("textNode begin", textNode)
-                                console.log("node ", node);
                                 parentNode.insertBefore(textNode, node);
                             } // End if (begin)
                             mark = document.createElement("mark");
                             mark.className += finalClassName;
                             
                             mark.appendChild(document.createTextNode(matched));
-                            console.log(nodeVal);
                             parentNode.insertBefore(mark, node);
                         }
                         
@@ -287,17 +195,12 @@ var InstantSearch = {
                         {
                             isLast = false;
                             matched = nodeVal.substr(selectionRange.endContainer.start_offset, end_offset);
-                            console.log("end matched", matched);
                             mark = document.createElement("mark");
                             mark.className += finalClassName;
-                            console.log(matched);
                             EndOffset+=end_offset;
-                            console.log("End offset", EndOffset);
                             mark.appendChild(document.createTextNode(matched));
                             nodeVal = nodeVal.substring(start_offset + (end_offset - start_offset));
-                            console.log("node val",nodeVal);
                             node.textContent = nodeVal;
-                            console.log(node);
                             parentNode.insertBefore(mark, node);
                         }
                         break;
@@ -313,20 +216,14 @@ var InstantSearch = {
                     if (begin)
                     {
                         textNode = document.createTextNode(begin);
-                        console.log("textNode begin", textNode)
                         parentNode.insertBefore(textNode, node);
                     } // End if (begin)
                     mark = document.createElement("mark");
                     mark.className += finalClassName;
-                    console.log(matched);
                     mark.appendChild(document.createTextNode(matched));
                     nodeVal = nodeVal.substring(start_offset + (end_offset - start_offset));
-                    console.log(nodeVal);
                     node.textContent = nodeVal;
-                    console.log(node);
                     parentNode.insertBefore(mark, node);
-
-                    console.log(nodeVal);
    
 
             } // Next i 
@@ -339,7 +236,6 @@ var InstantSearch = {
             if (p === null) return;
     
             var children = Array.prototype.slice.call(p.childNodes), i, cur;
-            console.log(children);
 
             if (children.length)
             {
@@ -347,7 +243,6 @@ var InstantSearch = {
                 for (i = 0; i < children.length; i++)
                 {
                     cur = children[i];
-                    console.log(cur)
                     if (cur.nodeType === 3)
                     {
                         checkAndReplace(cur, tokens, allClassName, allSensitiveSearch);
@@ -394,14 +289,12 @@ function TestTextHighlighting(start_offset, end_offset)
     EndOffset = 0;
     isFirst = true;
     isLast = true;
-    console.log("in testtexthighlighting")
     var container = document.getElementById("wholeText");
     InstantSearch.highlight(container, start_offset, end_offset);
 }
 
 function HighlightAll(Highlights)
 {
-    console.log("in testtexthighlighting")
     var container = document.getElementById("wholeText");
     Highlights.forEach(highlight => {
         InstantSearch.highlight(container, highlight.start_offset, highlight.end_offset);

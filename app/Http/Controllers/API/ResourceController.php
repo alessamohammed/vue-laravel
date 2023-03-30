@@ -11,56 +11,35 @@ class ResourceController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
-        //
+        // include mapped tags
+        $resources = Resource::with('tags')->get()->toArray();
+        return array_reverse($resources);
+    }
+    
+
+    // get mapped tags for a resource
+    public function getMappedTags($id)
+    {
+        $resource = Resource::find($id);
+        $tags = $resource->tags()->get();
+        return $tags;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function mapTagToResource(Request $request)
     {
-        //
+        $resource = Resource::find($request->input('resource_id'));
+        $resource->tags()->attach($request->input('tag_id'), ['user_id' => $request->input('user_id')]);
+        return response()->json('Resource updated!');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // unmap tag from resource
+    public function unmapTagFromResource(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Resource $resource)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Resource $resource)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Resource $resource)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Resource $resource)
-    {
-        //
+        $resource = Resource::find($request->input('resource_id'));
+        $resource->tags()->detach($request->input('tag_id'), ['user_id' => $request->input('user_id')]);
+        return response()->json('Resource updated!');
     }
 }
